@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad761f82-b565-428d-af2b-d3d6ff6443a6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/pl/ipt/Painter/Painter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/result.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pl/ipt/Painter/Painter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pl/ipt/Painter/Painter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pl/ipt/iptApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pl/ipt/iptApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/result.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/result.jpg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,9 +44,11 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "last_opened_file_path": "C:/Users/owsze/Documents/GitHub/3Własne",
+    "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2"
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.lookFeel"
   }
 }]]></component>
   <component name="RunManager">
@@ -77,7 +79,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1681894808302</updated>
-      <workItem from="1681894809626" duration="3205000" />
+      <workItem from="1681894809626" duration="19419000" />
     </task>
     <servers />
   </component>

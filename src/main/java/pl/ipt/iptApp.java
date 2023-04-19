@@ -3,9 +3,11 @@ package pl.ipt;
 import pl.ipt.Painter.Painter;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+
 import java.awt.image.BufferedImage;
 import java.io.*;
+
+
 
 public class iptApp {
     public static void main( String[] args){
@@ -16,10 +18,16 @@ public class iptApp {
 
             BufferedImage img = ImageIO.read(fileInputStream);
 
-            img = Painter.toGrayScale(img);
+
+            Painter painter = new Painter(img);
+
+            painter.toGrayScale();
+            painter.applyGaussian();
+            painter.applySobel();
 
 
-            ImageIO.write(img,"jpg",fileOutputStream);
+
+            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
 
 
             fileInputStream.close();
