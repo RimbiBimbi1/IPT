@@ -9,6 +9,34 @@ public class Painter {
     private Integer width;
     private Integer height;
 
+    private Double[][] sobelDirection;
+
+
+    /**
+     * Methods
+     **/
+
+
+    private BufferedImage getExtendedImage(Integer ext){
+        BufferedImage e = new BufferedImage(width+ext, height+ext, BufferedImage.TYPE_INT_RGB);
+        e.getGraphics().drawImage(image,ext/2, ext/2,null);
+        return e;
+    }
+
+    private Integer getMaxRGB(){
+        Integer max = 0;
+        for (int i=0; i<height;i++){
+            for (int j=0;j<width;j++){
+                int red = new Color(image.getRGB(j,i)).getRed();
+                if(red > max){
+                    max = red;
+                }
+                if (max >=255)return 255;
+            }
+        }
+        return max;
+    }
+
     public void toGrayScale() {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -23,21 +51,18 @@ public class Painter {
                 image.setRGB(j, i, grey);
             }
         }
+
     }
 
     public void applyGaussian() {
-        applyGaussian(5, 1.3);
+        applyGaussian(5, 1.0);
     }
 
     public void applyGaussian(Integer kernelSize, Double sd) {
-        BufferedImage extended = new BufferedImage(width + kernelSize - 1, height + kernelSize - 1, BufferedImage.TYPE_INT_RGB);
+        BufferedImage extended = getExtendedImage(kernelSize-1);
+        BufferedImage imageCopy = extended;
 
         Integer k = kernelSize >> 1;
-
-        Graphics graphics = extended.getGraphics();
-        graphics.drawImage(image, k, k, null);
-
-        BufferedImage copy = extended;
 
         Double[][] kernel = gaussianKernel(kernelSize, sd);
 
@@ -48,7 +73,7 @@ public class Painter {
                 for (int h = 0; h < kernelSize; h++) {
                     for (int g = 0; g < kernelSize; g++) {
 
-                        Color c = new Color(copy.getRGB(j - k + g, i - k + h));
+                        Color c = new Color(imageCopy.getRGB(j - k + g, i - k + h));
                         grey += kernel[h][g] * c.getRed();
 
 
@@ -90,26 +115,22 @@ public class Painter {
         Double[][] dir = new Double[width][height];
 
         for (int i = 0; i < height; i++) {
-            for (int j=0; j < width; j++){
-                G[j][i] = Math.sqrt((Gx[j][i]*Gx[j][i]+Gy[j][i]*Gy[j][i]));
+            for (int j = 0; j < width; j++) {
+                G[j][i] = Math.sqrt((Gx[j][i] * Gx[j][i] + Gy[j][i] * Gy[j][i]));
                 Integer grey = Math.min(255, G[j][i].intValue());
-                image.setRGB(j,i,new Color(grey,grey,grey).getRGB());
-                dir[j][i] = Math.atan2(Math.abs(Gy[j][i]),Math.abs(Gx[j][i]));
+                image.setRGB(j, i, new Color(grey, grey, grey).getRGB());
+                dir[j][i] = Math.atan2(Math.abs(Gy[j][i]), Math.abs(Gx[j][i]));
             }
         }
-
-
+        setSobelDirection(dir);
     }
 
     private Double[][] directionalSobel(Integer[][] k) {
-        BufferedImage extended = new BufferedImage(width + 2, height + 2, BufferedImage.TYPE_INT_RGB);
-        Graphics graphics = extended.getGraphics();
-
-        graphics.drawImage(image, 1, 1, null);
+        BufferedImage extended = getExtendedImage(2);
 
         Double[][] gradient = new Double[width][height];
 
-        BufferedImage copy = extended;
+        BufferedImage imageCopy = extended;
 
         for (int i = 1; i < height + 1; i++) {
             for (int j = 1; j < width + 1; j++) {
@@ -118,7 +139,7 @@ public class Painter {
 
                 for (int h = 0; h < 3; h++) {
                     for (int g = 0; g < 3; g++) {
-                        Color c = new Color(copy.getRGB(j - 1 + g, i - 1 + h));
+                        Color c = new Color(imageCopy.getRGB(j - 1 + g, i - 1 + h));
                         grey += (k[g][h] * c.getRed());
                     }
                 }
@@ -128,6 +149,104 @@ public class Painter {
         return gradient;
     }
 
+
+    public void applyNonMaxSuppression() {
+        BufferedImage imageCopy = image;
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                Integer q = new Color(255, 255, 255).getRGB();
+                Integer r = new Color(255, 255, 255).getRGB();
+
+                Double angle = sobelDirection[j][i];
+
+                try {
+                    if ((0 <= angle && angle < 0.125 * Math.PI) || (0.875 * Math.PI <= angle && angle <= Math.PI)) {
+                        q = imageCopy.getRGB(j, i + 1);
+                        r = imageCopy.getRGB(j, i - 1);
+                    } else if (0.125 * Math.PI <= angle && angle < 0.375 * Math.PI) {
+                        q = imageCopy.getRGB(j + 1, i - 1);
+                        r = imageCopy.getRGB(j - 1, i + 1);
+                    } else if (0.375 * Math.PI <= angle && angle < 0.625 * Math.PI) {
+                        q = imageCopy.getRGB(j + 1, i);
+                        r = imageCopy.getRGB(j - 1, i);
+                    } else if (0.625 * Math.PI <= angle && angle < 0.875 * Math.PI) {
+                        q = imageCopy.getRGB(j - 1, i - 1);
+                        r = imageCopy.getRGB(j + 1, i + 1);
+                    }
+                } catch (Exception e) {
+                    q = 255;
+                    r = 255;
+                }
+
+
+                if (imageCopy.getRGB(j, i) >= q && imageCopy.getRGB(j, i) >= r) {
+                    result.setRGB(j, i, imageCopy.getRGB(j, i));
+                } else {
+                    result.setRGB(j, i, 0);
+                }
+            }
+        }
+        setImage(result);
+    }
+
+    public void applyDoubleThreshold(){
+        applyDoubleThreshold(0.9, 0.55);
+    }
+
+    public void applyDoubleThreshold(double lowThresholdRatio, double highThresholdRatio) {
+        Integer maxRGB = getMaxRGB();
+
+        Integer highThreshold = (int)(maxRGB * highThresholdRatio);
+        Integer lowThreshold = (int)(highThreshold * lowThresholdRatio);
+
+        Integer high = new Color(highThreshold,highThreshold,highThreshold).getRGB();
+        Integer low = new Color(lowThreshold,lowThreshold,lowThreshold).getRGB();
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                Integer grey = image.getRGB(j,i);
+                if (grey>=high){
+                    image.setRGB(j,i,high);
+                } else if (grey< low) {
+                    image.setRGB(j,i,0);
+                }else{
+                    image.setRGB(j,i,low);
+                }
+            }
+        }
+        applyHysteresis(low,high);
+    }
+
+    public void applyHysteresis(Integer weak, Integer strong){
+        BufferedImage extended = getExtendedImage(2);
+
+        for (int i = 1; i < height+1; i++) {
+            for (int j = 1; j < width+1; j++) {
+                if (extended.getRGB(j,i) >= weak ){
+                    if (extended.getRGB(j-1,i-1) <= strong ||
+                            extended.getRGB(j,i-1) <= strong ||
+                            extended.getRGB(j+1,i-1) <= strong ||
+                            extended.getRGB(j-1,i) <= strong ||
+                            extended.getRGB(j+1,i) <= strong ||
+                            extended.getRGB(j-1,i+1) <= strong ||
+                            extended.getRGB(j,i+1) <= strong ||
+                            extended.getRGB(j+1,i+1) <= strong
+                    ){
+                        extended.setRGB(j,i,new Color(255,255,255).getRGB());
+                    }else
+                        extended.setRGB(j,i,0);
+                }
+            }
+        }
+        setImage(extended.getSubimage(1,1,width,height));
+    }
+
+
+    /**
+     * Constructors
+     **/
 
     public Painter() {
     }
@@ -142,7 +261,15 @@ public class Painter {
         return image;
     }
 
+    /**
+     * Getters and Setters
+     **/
+
     public void setImage(BufferedImage image) {
         this.image = image;
+    }
+
+    public void setSobelDirection(Double[][] sobelDirection) {
+        this.sobelDirection = sobelDirection;
     }
 }

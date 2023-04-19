@@ -24,8 +24,8 @@ public class iptApp {
             painter.toGrayScale();
             painter.applyGaussian();
             painter.applySobel();
-
-
+            painter.applyNonMaxSuppression();
+            painter.applyDoubleThreshold();
 
             ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
 
