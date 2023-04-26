@@ -6,10 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ad761f82-b565-428d-af2b-d3d6ff6443a6" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pl/ipt/Painter/Painter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pl/ipt/Painter/Painter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pl/ipt/iptApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pl/ipt/iptApp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/result — kopia.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/result.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/result.jpg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,6 +62,17 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.iptApp" />
@@ -82,6 +89,7 @@
       <updated>1681894808302</updated>
       <workItem from="1681894809626" duration="21540000" />
       <workItem from="1681925814008" duration="7239000" />
+      <workItem from="1682534326264" duration="16000" />
     </task>
     <servers />
   </component>
