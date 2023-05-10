@@ -81,7 +81,7 @@ public class Painter {
     }
 
     public void applyGaussian() {
-        applyGaussian(5, 1.3);
+        applyGaussian(5, 1.0);
     }
 
     public void applyGaussian(int kernelSize, Double sd) {
@@ -186,16 +186,54 @@ public class Painter {
 //                        Color c = new Color(extended.getRGB(j - 1 + g, i - 1 + h));
 //                        grey += (k[g][h] * c.getRed());
                         grey += (k[g][h] * red);
-
                     }
                 }
-
-//                System.out.println(grey);
+//              System.out.println(grey);
                 gradient[j - 1][i - 1] = grey;
             }
         }
         return gradient;
     }
+
+//    public void applyNonMaxSuppression(BufferedImage magnitude, BufferedImage angle){
+//        int height = magnitude.getHeight();
+//        int width = magnitude.getWidth();
+//
+//        for (int i = 0; i < height; i++) {
+//            for (int j = 0; j < width; j++) {
+//                int q = 255;
+//                int r = 255;
+//
+//
+//
+//                try {
+//                    if ((0 <= angle[j][i] && angle[j][i] < 0.125 * Math.PI) || (0.875 * Math.PI <= angle[j][i] && angle[j][i] <= Math.PI)) {;
+//                        q = getRed(magnitude,j,i+1);
+//                        r = getRed(magnitude,j,i-1);
+//                    } else if (0.125 * Math.PI <= angle[j][i] && angle[j][i] < 0.375 * Math.PI) {
+//                        q = getRed(magnitude,j+1,i-1);
+//                        r = getRed(magnitude,j-1,i+1);
+//                    } else if (0.375 * Math.PI <= angle[j][i] && angle[j][i] < 0.625 * Math.PI) {
+//                        q = getRed(magnitude,j+1,i);
+//                        r = getRed(magnitude,j-1,i);
+//                    } else if (0.625 * Math.PI <= angle[j][i]) && angle[j][i] < 0.875 * Math.PI) {
+//                        q = getRed(magnitude,j-1,i-1);
+//                        r = getRed(magnitude,j+1,i+1);
+//                    }
+//                } catch (Exception e) {
+//                    q = 255;
+//                    r = 255;
+//                }
+//
+//                if (getRed(magnitude, j,i) >= q && getRed(magnitude, j,i) >= r) {
+//                    result.setRGB(j, i, imageCopy.getRGB(j, i));
+//                } else {
+//                    result.setRGB(j, i, 0);
+//                }
+//            }
+//        }
+//        setImage(result);
+//    }
 
 
     public void applyNonMaxSuppression() {
@@ -240,8 +278,8 @@ public class Painter {
 
     public void applyDoubleThreshold(){
         applyDoubleThreshold(
-                0.02,
-                0.2);
+                0.2,
+                0.6);
     }
 
     public void applyDoubleThreshold(double lowThresholdRatio, double highThresholdRatio) {
