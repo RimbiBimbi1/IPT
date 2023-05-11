@@ -1,5 +1,6 @@
 package pl.ipt;
 
+import pl.ipt.ImageProcessor.ImageProcessor;
 import pl.ipt.Painter.Painter;
 
 import javax.imageio.ImageIO;
@@ -27,7 +28,15 @@ public class iptApp {
             painter.applyNonMaxSuppression();
             painter.applyDoubleThreshold();
 
-            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
+            BufferedImage eroded = ImageProcessor.erode(painter.getImage());
+//            eroded = ImageProcessor.erode(eroded);
+//
+//
+            BufferedImage dilated = ImageProcessor.dilate(eroded);
+//            dilated = ImageProcessor.dilate(dilated);
+
+
+            ImageIO.write(dilated,"jpg",fileOutputStream);
 
 
             fileInputStream.close();
