@@ -2,6 +2,8 @@ package pl.ipt.Painter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class Painter {
     private BufferedImage image;
@@ -21,8 +23,14 @@ public class Painter {
 
 
     private BufferedImage getExtendedImage(Integer ext) {
-        BufferedImage e = new BufferedImage(width + ext, height + ext, BufferedImage.TYPE_INT_RGB);
-        e.setRGB(ext/2,ext/2,width,height,image.getRGB(0,0,width,height,null,0,width),0,width);
+        return getExtendedImage(ext, image);
+    }
+
+    private BufferedImage getExtendedImage(Integer ext, BufferedImage img) {
+        int w = img.getWidth();
+        int h = img.getHeight();
+        BufferedImage e = new BufferedImage(w + ext, h + ext, BufferedImage.TYPE_INT_RGB);
+        e.setRGB(ext / 2, ext / 2, w, h, img.getRGB(0, 0, w, h, null, 0, w), 0, w);
 //        e.getGraphics().drawImage(image, ext / 2, ext / 2, null);
         return e;
     }
@@ -112,18 +120,21 @@ public class Painter {
         Integer[][] Kx = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
         Integer[][] Ky = {{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}};
 
-        Double[][] Gx = directionalSobel(Kx);
-        Double[][] Gy = directionalSobel(Ky);
+//        Double[][] Gx = directionalSobel(Kx);
+//        Double[][] Gy = directionalSobel(Ky);
+
+        setSobelX(directionalSobel(Kx));
+        setSobelY(directionalSobel(Ky));
 
         Double[][] G = new Double[width][height];
         Double[][] dir = new Double[width][height];
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                G[j][i] = Math.sqrt((Gx[j][i] * Gx[j][i] + Gy[j][i] * Gy[j][i]));
+                G[j][i] = Math.sqrt((sobelX[j][i] * sobelX[j][i] + sobelY[j][i] * sobelY[j][i]));
                 int gray = Math.min(255, G[j][i].intValue());
                 image.setRGB(j, i, new Color(gray, gray, gray).getRGB());
-                dir[j][i] = Math.atan2(Math.abs(Gy[j][i]), Math.abs(Gx[j][i]));
+                dir[j][i] = Math.atan2(Math.abs(sobelY[j][i]), Math.abs(sobelX[j][i]));
             }
         }
         setSobel(dir);
@@ -152,10 +163,8 @@ public class Painter {
                 gradient[j - 1][i - 1] = gray;
             }
         }
-
         return gradient;
     }
-
 
     public void applyNonMaxSuppression() {
         BufferedImage imageCopy = image;
@@ -257,7 +266,68 @@ public class Painter {
     }
 
     public void applyHarris() {
+        applyHarris(0, 1.5);
+    }
 
+    public void applyHarris(int kSize, double sd) {
+        Double[][] harrisResponse = new Double[width][height];
+
+        int k = kSize >> 1;
+        Double[][] kernel = gaussianKernel(kSize, sd);
+
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                double[][] tensor = new double[2][2];
+                for (int g = 0; g < kSize; g++) {
+                    for (int h = 0; h < kSize; h++) {
+                        double checkX = 0;
+                        double checkY = 0;
+
+                        try {
+                            checkX = sobelX[j - k + g][i - k + h];
+                        } catch (Exception ignored) {
+                        }
+
+                        try {
+                            checkY = sobelY[j - k + g][i - k + g];
+                        } catch (Exception ignored) {
+                        }
+
+                        tensor[0][0] += kernel[g][h] * checkX * checkX;
+                        tensor[0][1] += kernel[g][h] * checkX * checkY;
+                        tensor[1][0] += kernel[g][h] * checkX * checkY;
+                        tensor[1][1] += kernel[g][h] * checkY * checkY;
+
+                    }
+                }
+
+                double tensorDet = tensor[0][0] * tensor[1][1] - tensor[0][1] * tensor[1][0];
+                double tensorTrace = tensor[0][0] * tensor[1][1];
+
+                harrisResponse[j][i] = tensorDet / tensorTrace;
+            }
+        }
+
+        int white = new Color(255,225,255).getRGB();
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        for (int i = 1; i < height - 1; i++) {
+            for (int j = 1; j < width - 1; j++) {
+                Double middle = harrisResponse[j][i];
+                if (harrisResponse[j - 1][i - 1] < middle
+                        && harrisResponse[j][i - 1] < middle
+                        && harrisResponse[j + 1][i - 1] < middle
+                        && harrisResponse[j - 1][i] < middle
+                        && harrisResponse[j + 1][i] < middle
+                        && harrisResponse[j - 1][i + 1] < middle
+                        && harrisResponse[j][i + 1] < middle
+                        && harrisResponse[j + 1][i + 1] < middle) {
+                    result.setRGB(j,i,white);
+                }
+            }
+        }
+        setImage(result);
     }
 
 

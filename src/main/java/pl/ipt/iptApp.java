@@ -28,15 +28,19 @@ public class iptApp {
             painter.applyNonMaxSuppression();
             painter.applyDoubleThreshold();
 
-            BufferedImage eroded = ImageProcessor.erode(painter.getImage());
+//            painter.applyHarris();
+
+//            BufferedImage eroded = ImageProcessor.erode(painter.getImage());
 //            eroded = ImageProcessor.erode(eroded);
 //
 //
-            BufferedImage dilated = ImageProcessor.dilate(eroded);
+//            BufferedImage dilated = ImageProcessor.dilate(eroded);
 //            dilated = ImageProcessor.dilate(dilated);
 
 
-            ImageIO.write(dilated,"jpg",fileOutputStream);
+
+
+            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
 
 
             fileInputStream.close();
