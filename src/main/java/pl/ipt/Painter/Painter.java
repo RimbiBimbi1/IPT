@@ -67,7 +67,7 @@ public class Painter {
     }
 
     public void applyGaussian() {
-        applyGaussian(5, 2.5);
+        applyGaussian(3, 1.3);
     }
 
     public void applyGaussian(Integer kernelSize, Double sd) {
@@ -265,8 +265,11 @@ public class Painter {
         setImage(extended.getSubimage(1, 1, width, height));
     }
 
+
+
+
     public void applyHarris() {
-        applyHarris(0, 1.5);
+        applyHarris(7, 2.5);
     }
 
     public void applyHarris(int kSize, double sd) {

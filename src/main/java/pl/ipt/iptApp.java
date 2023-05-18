@@ -1,5 +1,6 @@
 package pl.ipt;
 
+import org.opencv.core.Mat;
 import pl.ipt.ImageProcessor.ImageProcessor;
 import pl.ipt.Painter.Painter;
 
@@ -28,20 +29,33 @@ public class iptApp {
             painter.applyNonMaxSuppression();
             painter.applyDoubleThreshold();
 
+//            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
+
+
 //            painter.applyHarris();
 
-//            BufferedImage eroded = ImageProcessor.erode(painter.getImage());
-//            eroded = ImageProcessor.erode(eroded);
+            BufferedImage eroded = ImageProcessor.erode(painter.getImage());
+            eroded = ImageProcessor.erode(eroded);
+
+//            ImageIO.write(eroded,"jpg",fileOutputStream);
+
 //
 //
 //            BufferedImage dilated = ImageProcessor.dilate(eroded);
 //            dilated = ImageProcessor.dilate(dilated);
 
+//            ImageIO.write(dilated,"jpg",fileOutputStream);
 
-
-
-            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
-
+            BufferedImage floodfilled = ImageProcessor.floodfill(eroded);
+//            ImageIO.write(floodfilled,"jpg",fileOutputStream);
+//
+            eroded = ImageProcessor.erode(floodfilled);
+//            ImageIO.write(eroded,"jpg",fileOutputStream);
+//
+            BufferedImage dilated = ImageProcessor.dilate(eroded);
+            dilated = ImageProcessor.dilate(dilated);
+            dilated = ImageProcessor.dilate(dilated);
+            ImageIO.write(dilated,"jpg",fileOutputStream);
 
             fileInputStream.close();
             fileOutputStream.close();

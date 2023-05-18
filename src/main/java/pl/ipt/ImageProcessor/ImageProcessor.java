@@ -6,6 +6,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Stack;
 
 public class ImageProcessor {
 
@@ -110,6 +111,41 @@ public class ImageProcessor {
         result.setRGB(0, 0, width, height, resultPixels, 0, width);
         return result;
 
+    }
+
+    public static BufferedImage floodfill(BufferedImage image){
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int[] imagePixels = getPixels(image);
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+
+
+        int white = new Color(255,255,255).getRGB();
+        int grey = new Color(127,127,127).getRGB();
+        Stack<Point> flooded = new Stack<Point>();
+
+        flooded.push(new Point(0,0));
+        flooded.push(new Point(width,0));
+        flooded.push(new Point(0,height));
+        flooded.push(new Point(width,height));
+
+        while(!flooded.isEmpty()){
+            Point p = flooded.pop();
+            int i = p.x + p.y * width;
+            try {
+                if(imagePixels[i]<grey){
+                    imagePixels[i]=white;
+                    if (p.y>0) flooded.push(new Point(p.x,p.y-1));
+                    if (p.x>0) flooded.push(new Point(p.x-1,p.y));
+                    if (p.x<width) flooded.push(new Point(p.x+1,p.y));
+                    if (p.y<height) flooded.push(new Point(p.x,p.y+1));
+                }
+            }catch (Exception ignored){}
+
+        }
+
+        result.setRGB(0, 0, width, height, imagePixels, 0, width);
+        return result;
     }
 
 
