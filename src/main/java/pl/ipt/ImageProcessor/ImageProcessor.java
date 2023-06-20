@@ -1,6 +1,7 @@
 package pl.ipt.ImageProcessor;
 
-import pl.ipt.DiagonalCornerScannerConfig.DiagonalCornerScannerConfig;
+import pl.ipt.DiagonalCornerScanner.DiagonalCornerScanner;
+import pl.ipt.ImageConverter.ImageConverter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,31 +11,6 @@ import java.util.List;
 import java.util.Stack;
 
 public class ImageProcessor {
-    private DiagonalCornerScannerConfig config;
-
-
-    private void setDCSC(DiagonalCornerScannerConfig config) {
-        this.config = config;
-    }
-
-    private static int[] getPixels(BufferedImage image) {
-
-
-        int width = image.getWidth();
-        int height = image.getHeight();
-        int[] result = new int[width * height];
-
-
-        image.getRGB(
-                0,
-                0,
-                width,
-                height,
-                result,
-                0,
-                width);
-        return result;
-    }
 
 
     public static BufferedImage erode(BufferedImage image) {
@@ -42,7 +18,7 @@ public class ImageProcessor {
         int height = image.getHeight();
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
 
-        int[] imagePixels = getPixels(image);
+        int[] imagePixels = ImageConverter.BufImg2IntArray(image);
         int[] resultPixels = new int[imagePixels.length];
 
         System.arraycopy(imagePixels, 0, resultPixels, 0, imagePixels.length);
@@ -85,7 +61,7 @@ public class ImageProcessor {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
 
-        int[] imagePixels = getPixels(image);
+        int[] imagePixels = ImageConverter.BufImg2IntArray(image);
         int[] resultPixels = new int[imagePixels.length];
         System.arraycopy(imagePixels, 0, resultPixels, 0, imagePixels.length);
 
@@ -122,7 +98,7 @@ public class ImageProcessor {
     public static BufferedImage floodfill(BufferedImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
-        int[] imagePixels = getPixels(image);
+        int[] imagePixels = ImageConverter.BufImg2IntArray(image);
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
 
 
@@ -205,86 +181,77 @@ public class ImageProcessor {
 //        return new Point(0, 0);
 //    }
 
-    private Point diagonalCornerScan(BufferedImage image, int corner) {
-        int width = image.getWidth();
-        int height = image.getHeight();
+//    private static Point diagonalCornerScan(BufferedImage image, int corner) {
+//        DiagonalCornerScanner dcs = new DiagonalCornerScanner(image,corner);
+//
+//
+////
+////
+////        java.util.function.Supplier<Point> xPhase = () -> {
+////            while ((0 <= config.xStart) && (config.xStart < width)) {
+////                int x = config.xStart;
+////                int y = config.yStart;
+////
+////                while ((0 <= x) && (x < width) && (y <= 0) && (y < height)) {
+////
+////                    System.out.println(new Point(x, y));
+////
+////                    x += config.xStep;
+////                    y += config.yStep;
+////                }
+////
+////                config.xStart += config.xJump;
+////            }
+////            config.xStart-= config.xJump;
+////            config.yStart+= config.yJump;
+////            return new Point(-1, -1);
+////        };
+////
+////        java.util.function.Supplier<Point> yPhase = () -> {
+////            while ((0 <= config.yStart) && (config.yStart < width)) {
+////                int x = config.xStart;
+////                int y = config.yStart;
+////
+////                while ((0 <= x) && (x < width) && (y <= 0) && (y < height)) {
+////
+////                    System.out.println(new Point(x, y));
+////
+////                    x += config.xStep;
+////                    y += config.yStep;
+////                }
+////
+////                config.yStart += config.yJump;
+////            }
+////            config.xStart+= config.xJump;
+////            config.yStart-= config.yJump;
+////            return new Point(-1, -1);
+////        };
+//
+//        Point result;
+//        if (corner%2==0){
+//            result = xPhase.get();
+//            if (result.x!=-1){
+//                return result;
+//            }
+//
+//            result = yPhase.get();
+//
+//        }
+//        else {
+//            result = yPhase.get();
+//            if (result.x!=-1){
+//                return result;
+//            }
+//
+//            result = xPhase.get();
+//        }
+//
+//        return result;
+//    }
 
-        setDCSC(new DiagonalCornerScannerConfig(corner, width, height));
-
-
-        java.util.function.Supplier<Point> xPhase = () -> {
-            while ((0 <= config.xStart) && (config.xStart < width)) {
-                int x = config.xStart;
-                int y = config.yStart;
-
-                while ((0 <= x) && (x < width) && (y <= 0) && (y < height)) {
-
-                    System.out.println(new Point(x, y));
-
-                    x += config.xStep;
-                    y += config.yStep;
-                }
-
-                config.xStart += config.xJump;
-            }
-            config.xStart-= config.xJump;
-            config.yStart+= config.yJump;
-            return new Point(-1, -1);
-        };
-
-        java.util.function.Supplier<Point> yPhase = () -> {
-            while ((0 <= config.yStart) && (config.yStart < width)) {
-                int x = config.xStart;
-                int y = config.yStart;
-
-                while ((0 <= x) && (x < width) && (y <= 0) && (y < height)) {
-
-                    System.out.println(new Point(x, y));
-
-                    x += config.xStep;
-                    y += config.yStep;
-                }
-
-                config.yStart += config.yJump;
-            }
-            config.xStart+= config.xJump;
-            config.yStart-= config.yJump;
-            return new Point(-1, -1);
-        };
-
-        Point result;
-        if (corner%2==0){
-            result = xPhase.get();
-            if (result.x!=-1){
-                return result;
-            }
-
-            result = yPhase.get();
-
-        }
-        else {
-            result = yPhase.get();
-            if (result.x!=-1){
-                return result;
-            }
-
-            result = xPhase.get();
-        }
-
-        return result;
-    }
-
-    public List<Point> sheetDetector(BufferedImage image) {
-        List<Point> corners = Arrays.asList(
-                diagonalCornerScan(image, 0),
-                diagonalCornerScan(image,1),
-                diagonalCornerScan(image,2),
-                diagonalCornerScan(image,3)
-//                upperLeftCornerScan(image)
-        );
-
-
-        return corners;
+    public static List<Point> sheetDetector(BufferedImage image) {
+        DiagonalCornerScanner dcs = new DiagonalCornerScanner(image);
+        return dcs.scanForCorners();
     }
 
 }

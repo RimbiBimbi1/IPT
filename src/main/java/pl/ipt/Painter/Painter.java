@@ -26,7 +26,7 @@ public class Painter {
         return getExtendedImage(ext, image);
     }
 
-    private BufferedImage getExtendedImage(Integer ext, BufferedImage img) {
+    public static BufferedImage getExtendedImage(Integer ext, BufferedImage img) {
         int w = img.getWidth();
         int h = img.getHeight();
         BufferedImage e = new BufferedImage(w + ext, h + ext, BufferedImage.TYPE_INT_RGB);
