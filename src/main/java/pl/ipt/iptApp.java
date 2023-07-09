@@ -1,7 +1,6 @@
 package pl.ipt;
 
-import org.opencv.core.Mat;
-import pl.ipt.ImageConverter.ImageConverter;
+
 import pl.ipt.ImageProcessor.ImageProcessor;
 import pl.ipt.Painter.Painter;
 import pl.ipt.Triangle.Triangle;
@@ -13,7 +12,6 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -28,18 +26,40 @@ public class iptApp {
             FileInputStream fileInputStream = new FileInputStream("src/main/resources/1.jpg");
 //            FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/result.jpg");
 
-            BufferedImage img = ImageIO.read(fileInputStream);
 
+            BufferedImage img = ImageIO.read(fileInputStream);
             BufferedImage imgCp = Painter.getExtendedImage(0, img);
 
+            FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/Results/0input.jpg");
+            ImageIO.write(img,"jpg",fileOutputStream);
+            fileOutputStream.close();
 
             Painter painter = new Painter(img);
 
             painter.toGrayScale();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/1grayscale.jpg");
+            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
+            fileOutputStream.close();
+
             painter.applyGaussian();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/2gaussian.jpg");
+            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
+            fileOutputStream.close();
+
             painter.applySobel();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/3sobel.jpg");
+            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
+            fileOutputStream.close();
+
             painter.applyNonMaxSuppression();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/4nonmax.jpg");
+            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
+            fileOutputStream.close();
+
             painter.applyDoubleThreshold();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/5postHisteresis.jpg");
+            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
+            fileOutputStream.close();
 
 //            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
 
@@ -47,7 +67,14 @@ public class iptApp {
 //            painter.applyHarris();
 
             BufferedImage eroded = ImageProcessor.erode(painter.getImage());
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/6eroded.jpg");
+            ImageIO.write(eroded,"jpg",fileOutputStream);
+            fileOutputStream.close();
+
             eroded = ImageProcessor.erode(eroded);
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/7eroded.jpg");
+            ImageIO.write(eroded,"jpg",fileOutputStream);
+            fileOutputStream.close();
 
 //            ImageIO.write(eroded,"jpg",fileOutputStream);
 
@@ -59,14 +86,32 @@ public class iptApp {
 //            ImageIO.write(dilated,"jpg",fileOutputStream);
 
             BufferedImage floodfilled = ImageProcessor.floodfill(eroded);
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/8floodfilled.jpg");
+            ImageIO.write(floodfilled,"jpg",fileOutputStream);
+            fileOutputStream.close();
+
 //            ImageIO.write(floodfilled,"jpg",fileOutputStream);
 //
             eroded = ImageProcessor.erode(floodfilled);
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/9eroded.jpg");
+            ImageIO.write(eroded,"jpg",fileOutputStream);
+            fileOutputStream.close();
 //            ImageIO.write(eroded,"jpg",fileOutputStream);
 //
             BufferedImage dilated = ImageProcessor.dilate(eroded);
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/10dilated.jpg");
+            ImageIO.write(dilated,"jpg",fileOutputStream);
+            fileOutputStream.close();
+
             dilated = ImageProcessor.dilate(dilated);
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/11dilated.jpg");
+            ImageIO.write(dilated,"jpg",fileOutputStream);
+            fileOutputStream.close();
+
             dilated = ImageProcessor.dilate(dilated);
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/12dilated.jpg");
+            ImageIO.write(dilated,"jpg",fileOutputStream);
+            fileOutputStream.close();
 
             List<Point> corners = ImageProcessor.sheetDetector(dilated);
 //            BufferedImage image = ImageConverter.IntArray2BufImg(ImageProcessor.getSheetDetector(img), img.getWidth(), img.getHeight());
@@ -110,7 +155,6 @@ public class iptApp {
             Triangle targetUpperRight = new Triangle(new Point(0,0), new Point(a4Width-1,0), new Point(a4Width-1,a4Height-1));
             Triangle targetLowerLeft = new Triangle(new Point(0,0), new Point(0,a4Height-1), new Point(a4Width-1,a4Height-1));
 
-
             TriangleTexturer triangleTexturer = new TriangleTexturer(a4, imgCp, textureUpperRight, targetUpperRight );
             triangleTexturer.texture();
             triangleTexturer.setFrom(textureLowerLeft);
@@ -119,6 +163,9 @@ public class iptApp {
 
 
             BufferedImage result = triangleTexturer.getCanvas();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/13result.jpg");
+            ImageIO.write(result,"jpg",fileOutputStream);
+            fileOutputStream.close();
 
             JPEGImageWriteParam jpegParams = new JPEGImageWriteParam(null);
             jpegParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);

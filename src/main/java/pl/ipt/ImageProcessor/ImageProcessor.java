@@ -106,10 +106,19 @@ public class ImageProcessor {
         int grey = new Color(127, 127, 127).getRGB();
         Stack<Point> flooded = new Stack<Point>();
 
-        flooded.push(new Point(0, 0));
-        flooded.push(new Point(width, 0));
-        flooded.push(new Point(0, height));
-        flooded.push(new Point(width, height));
+        for (int i=0;i<width;i++){
+            flooded.push(new Point(i, 0));
+            flooded.push(new Point(i, height-1));
+        }
+        for (int i=1;i<height-1;i++){
+            flooded.push(new Point(0, i));
+            flooded.push(new Point(width-1, i));
+        }
+
+//        flooded.push(new Point(0, 0));
+//        flooded.push(new Point(width, 0));
+//        flooded.push(new Point(0, height));
+//        flooded.push(new Point(width, height));
 
         while (!flooded.isEmpty()) {
             Point p = flooded.pop();
@@ -119,8 +128,8 @@ public class ImageProcessor {
                     imagePixels[i] = white;
                     if (p.y > 0) flooded.push(new Point(p.x, p.y - 1));
                     if (p.x > 0) flooded.push(new Point(p.x - 1, p.y));
-                    if (p.x < width) flooded.push(new Point(p.x + 1, p.y));
-                    if (p.y < height) flooded.push(new Point(p.x, p.y + 1));
+                    if (p.x < width-1) flooded.push(new Point(p.x + 1, p.y));
+                    if (p.y < height-1) flooded.push(new Point(p.x, p.y + 1));
                 }
             } catch (Exception ignored) {
             }
