@@ -223,7 +223,7 @@ public class Painter {
 
     public void applyDoubleThreshold() {
 //        applyDoubleThreshold(0.3, 0.8);
-        applyDoubleThreshold(0.4, 0.8);
+        applyDoubleThreshold(0.25, 0.25);
     }
 
     public void applyDoubleThreshold(double lowThresholdRatio, double highThresholdRatio) {
@@ -231,7 +231,6 @@ public class Painter {
 
         int highThreshold = (int) (maxRGB * highThresholdRatio);
         int lowThreshold = (int) (highThreshold * lowThresholdRatio);
-
 
         int high = new Color(highThreshold, highThreshold, highThreshold).getRGB();
         int low = new Color(lowThreshold, lowThreshold, lowThreshold).getRGB();
@@ -260,7 +259,7 @@ public class Painter {
 
     public void applyHysteresis(Integer weak, Integer strong){
         BufferedImage extended = getExtendedImage(2);
-//        int white = new Color(255, 255, 255).getRGB();
+        int white = new Color(255, 255, 255).getRGB();
 
         Stack<Point> tracked = new Stack<>();
         for (int i = 1; i < height + 1; i++) {
@@ -291,9 +290,10 @@ public class Painter {
 
         for (int i = 1; i < height + 1; i++) {
             for (int j = 1; j < width + 1; j++) {
-                if (extended.getRGB(j, i) == weak) {
-                    extended.setRGB(j, i, 0);
+                if (extended.getRGB(j, i) == strong) {
+                    extended.setRGB(j, i, white);
                 }
+                else extended.setRGB(j, i, 0);
             }
         }
 

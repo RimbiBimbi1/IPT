@@ -13,12 +13,13 @@ import java.util.List;
 
 public class DiagonalCornerScanner {
     private BufferedImage image;
-    int width;
-    int height;
+    private int width;
+    private int height;
     //    private int[] kernel;
     private int[] pixels;
     private int[] pixelNeighbours;
     private double[] pixelGravityCenterDistance;
+
     private int xStart;
     private int yStart;
     //    private int xEnd;

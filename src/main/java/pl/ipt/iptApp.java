@@ -3,6 +3,7 @@ package pl.ipt;
 
 import pl.ipt.ImageProcessor.ImageProcessor;
 import pl.ipt.Painter.Painter;
+import pl.ipt.ShadowRemover.ShadowRemover;
 import pl.ipt.Triangle.Triangle;
 import pl.ipt.TriangleTexturer.TriangleTexturer;
 
@@ -165,6 +166,19 @@ public class iptApp {
             BufferedImage result = triangleTexturer.getCanvas();
             fileOutputStream = new FileOutputStream("src/main/resources/Results/13result.jpg");
             ImageIO.write(result,"jpg",fileOutputStream);
+            fileOutputStream.close();
+
+
+            ShadowRemover shadowRemover = new ShadowRemover(result);
+            BufferedImage invariant = shadowRemover.CalcInvariant();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/14Invariant.jpg");
+            ImageIO.write(invariant, "jpg", fileOutputStream);
+            fileOutputStream.close();
+
+            painter = new Painter(invariant);
+            painter.applyGaussian();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/15Gaussian.jpg");
+            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
             fileOutputStream.close();
 
             JPEGImageWriteParam jpegParams = new JPEGImageWriteParam(null);
