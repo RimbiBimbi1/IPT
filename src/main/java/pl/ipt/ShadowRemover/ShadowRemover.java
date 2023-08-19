@@ -64,12 +64,75 @@ public class ShadowRemover {
         this.reflectance = reflectance;
     }
 
-    public static BufferedImage CalcInvariant(BufferedImage image){
-        int[] pixels = ImageConverter.BufImg2IntArray(image);
-        int width = image.getHeight();
-        int height = image.getHeight();
-        int l = pixels.length;
+//    public static BufferedImage CalcInvariant(BufferedImage image){
+//        int[] pixels = ImageConverter.BufImg2IntArray(image);
+//        int width = image.getHeight();
+//        int height = image.getHeight();
+//        int l = pixels.length;
+//
+//        double[] X = new double[l];
+//        double[] Y = new double[l];
+//        double [] invariant = new double[l];
+//        int [] result = new int[l];
+//
+//
+//        double meanX = 0.0;
+//        double meanY = 0.0;
+//
+//        for (int i = 0; i < l; i++){
+//            Color c = new Color(pixels[i]);
+//            double r = Math.max(c.getRed(),1.0)/255.0;
+//            double g = Math.max(c.getGreen(),1.0)/255.0;
+//            double b = Math.max(c.getBlue(),1.0)/255.0;
+//
+//            double geoMean = Math.pow(r*g*b, 1.0/3);
+//
+//            X[i] = Math.log(r/geoMean);
+//            Y[i] = Math.log(b/geoMean);
+//
+//            meanX += X[i];
+//            meanY += Y[i];
+//        }
+//
+//        meanX /= l;
+//        meanY /= l;
+//
+//        for (int i = 0; i < l; i++) {
+//            X[i] -= meanX;
+//            Y[i] -= meanY;
+//        }
+//
+//        double maxI = 0.0;
+//        double minI = Double.MAX_VALUE;
+//
+//        double alpha = 0.11;
+//        double cos = Math.cos(alpha);
+//        double sin = Math.sin(alpha);
+//
+//        for (int i = 0; i < l; i++) {
+//            invariant[i] = (X[i]*cos + Y[i]*sin);
+//            if (maxI < invariant[i]){
+//                maxI = invariant[i];
+//            }
+//            if(minI > invariant[i]){
+//                minI = invariant[i];
+//            }
+//        }
+//
+//        for (int i = 0; i < l; i++) {
+//            int gray = (int) ((invariant[i]-minI)/(maxI-minI)*255);
+//            result[i] = new Color (gray,gray,gray).getRGB();
+//        }
+//
+//        return ImageConverter.IntArray2BufImg(result,width,height);
+//    }
 
+//    public BufferedImage CalcInvariant(){
+//        return CalcInvariant(0);
+//    }
+
+    public BufferedImage CalcInvariant(int angle){
+        int l = pixels.length;
         double[] X = new double[l];
         double[] Y = new double[l];
         double [] invariant = new double[l];
@@ -106,7 +169,7 @@ public class ShadowRemover {
         double minI = Double.MAX_VALUE;
 
 
-        double alpha = 0.11;
+        double alpha = angle * Math.PI / 180;
         double cos = Math.cos(alpha);
         double sin = Math.sin(alpha);
 
@@ -127,66 +190,6 @@ public class ShadowRemover {
 
         return ImageConverter.IntArray2BufImg(result,width,height);
     }
-
-//    public BufferedImage CalcInvariant(){
-//        int l = pixels.length;
-//        double[] X = new double[l];
-//        double[] Y = new double[l];
-//        double [] invariant = new double[l];
-//        int [] result = new int[l];
-//
-//
-//        double meanX = 0.0;
-//        double meanY = 0.0;
-//
-//        for (int i = 0; i < l; i++){
-//            Color c = new Color(pixels[i]);
-//            double r = Math.max(c.getRed(),1.0)/255.0;
-//            double g = Math.max(c.getGreen(),1.0)/255.0;
-//            double b = Math.max(c.getBlue(),1.0)/255.0;
-//
-//            double geoMean = Math.pow(r*g*b, 1.0/3);
-//
-//            X[i] = Math.log(r/geoMean);
-//            Y[i] = Math.log(b/geoMean);
-//
-//            meanX += X[i];
-//            meanY += Y[i];
-//        }
-//
-//        meanX /= l;
-//        meanY /= l;
-//
-//        for (int i = 0; i < l; i++) {
-//            X[i] -= meanX;
-//            Y[i] -= meanY;
-//        }
-//
-//        double maxI = 0.0;
-//        double minI = Double.MAX_VALUE;
-//
-//
-//        double alpha = 0.11;
-//        double cos = Math.cos(alpha);
-//        double sin = Math.sin(alpha);
-//
-//        for (int i = 0; i < l; i++) {
-//            invariant[i] = (X[i]*cos + Y[i]*sin);
-//            if (maxI < invariant[i]){
-//                maxI = invariant[i];
-//            }
-//            if(minI > invariant[i]){
-//                minI = invariant[i];
-//            }
-//        }
-//
-//        for (int i = 0; i < l; i++) {
-//            int gray = (int) ((invariant[i]-minI)/(maxI-minI)*255);
-//            result[i] = new Color (gray,gray,gray).getRGB();
-//        }
-//
-//        return ImageConverter.IntArray2BufImg(result,width,height);
-//    }
 
 
 //    public BufferedImage CalcInvariant() {

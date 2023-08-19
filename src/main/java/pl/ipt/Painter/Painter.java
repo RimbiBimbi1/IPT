@@ -41,7 +41,9 @@ public class Painter {
         return e;
     }
 
-    private Integer getMaxRGB() {
+
+
+    public Integer getMaxRed() {
         int max = 0;
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -53,6 +55,20 @@ public class Painter {
             }
         }
         return max;
+    }
+
+    public Integer getMinRed() {
+        int min = 255;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int red = new Color(image.getRGB(j, i)).getRed();
+                if (red < min) {
+                    min = red;
+                }
+                if (min <= 0) return 0;
+            }
+        }
+        return min;
     }
 
     public void toGrayScale() {
@@ -230,23 +246,23 @@ public class Painter {
     }
 
     public void applyDoubleThreshold(double lowThresholdRatio, double highThresholdRatio) {
-        Integer maxRGB = getMaxRGB();
+        Integer maxRed = getMaxRed();
 
-        int high = (int) (maxRGB * highThresholdRatio);
-        int low = (int) (high * lowThresholdRatio);
+        highThreshold = (int) (maxRed * highThresholdRatio);
+        lowThreshold = (int) (highThreshold * lowThresholdRatio);
+        int highRGB = new Color(highThreshold,highThreshold,highThreshold).getRGB();
+        int lowRGB = new Color(lowThreshold,lowThreshold,lowThreshold).getRGB();
 
-        this.highThreshold = new Color(high, high, high).getRGB();
-        this.lowThreshold = new Color(low, low, low).getRGB();
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 int grey = new Color(image.getRGB(j, i)).getRed();
-                if (grey >= high) {
-                    image.setRGB(j, i, high);
-                } else if (grey < low ) {
+                if (grey >= highThreshold) {
+                    image.setRGB(j, i, highRGB);
+                } else if (grey < lowThreshold ) {
                     image.setRGB(j, i, 0);
                 } else {
-                    image.setRGB(j, i, low);
+                    image.setRGB(j, i, lowRGB);
                 }
             }
         }
@@ -255,11 +271,12 @@ public class Painter {
     public void applyHysteresis(){
         BufferedImage extended = getExtendedImage(2);
         int white = new Color(255, 255, 255).getRGB();
+        int highRGB = new Color(highThreshold,highThreshold,highThreshold).getRGB();
 
         Stack<Point> tracked = new Stack<>();
         for (int i = 1; i < height + 1; i++) {
             for (int j = 1; j < width + 1; j++) {
-                int grey = extended.getRGB(j,i);
+                int grey = new Color(extended.getRGB(j,i)).getRed();
 
                 if (grey>=this.highThreshold){
                     tracked.push(new Point(j,i));
@@ -269,14 +286,14 @@ public class Painter {
 
         while(!tracked.isEmpty()){
             Point p = tracked.pop();
-            extended.setRGB(p.x,p.y, this.highThreshold);
+            extended.setRGB(p.x,p.y, highRGB);
             for (int i=-1;i<2;i++){
                 for (int j=-1;j<2;j++){
                     if (i==0 && j==0){
                         continue;
                     }
-                    Integer pRGB =  extended.getRGB(p.x+i,p.y+j);
-                    if ( this.lowThreshold <= pRGB && pRGB <this.highThreshold){
+                    Integer pRGB =  new Color(extended.getRGB(p.x+i,p.y+j)).getRed();
+                    if ( this.lowThreshold <= pRGB && pRGB < this.highThreshold){
                         tracked.push(new Point(p.x+i,p.y+j));
                     }
                 }
@@ -285,7 +302,7 @@ public class Painter {
 
         for (int i = 1; i < height + 1; i++) {
             for (int j = 1; j < width + 1; j++) {
-                if (extended.getRGB(j, i) == this.highThreshold) {
+                if (new Color(extended.getRGB(j, i)).getRed() == this.highThreshold) {
                     extended.setRGB(j, i, white);
                 }
                 else extended.setRGB(j, i, 0);
@@ -367,7 +384,7 @@ public class Painter {
     }
 
     public Painter(BufferedImage image) {
-        this.image = image;
+        this.image = getExtendedImage(0, image);
         this.width = image.getWidth();
         this.height = image.getHeight();
     }
@@ -381,7 +398,9 @@ public class Painter {
      **/
 
     public void setImage(BufferedImage image) {
-        this.image = image;
+        this.image = getExtendedImage(0, image);
+        this.width = image.getWidth();
+        this.height = image.getHeight();
     }
 
     public Double[][] getSobelX() {

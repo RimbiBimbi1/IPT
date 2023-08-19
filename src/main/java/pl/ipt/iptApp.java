@@ -26,171 +26,171 @@ public class iptApp {
     public static void main(String[] args) {
 
         try {
-            FileInputStream fileInputStream = new FileInputStream("src/main/resources/8.jpg");
+            FileInputStream fileInputStream = new FileInputStream("src/main/resources/9.jpg");
 //            FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/result.jpg");
 
 
             BufferedImage img = ImageIO.read(fileInputStream);
             BufferedImage imgCp = Painter.getExtendedImage(0, img);
 
-            saveImageAs(img, "0 Input");
+            saveImageAs(img, "Input");
 
-            BufferedImage illuminationInvariant = ShadowRemover.CalcInvariant(img);
-            saveImageAs(illuminationInvariant, "1 Invariant");
-
-            Painter painter = new Painter(illuminationInvariant);
-            painter.applyGaussian();
-            saveImageAs(painter.getImage(), "2 Blurred");
-
-            painter.applySobel();
-            saveImageAs(painter.getImage(), "3 Sobel");
-
-            painter.applyNonMaxSuppression();
-            saveImageAs(painter.getImage(), "4 Suppression");
-
-            painter.applyDoubleThreshold();
-            saveImageAs(painter.getImage(), "5 Double threshold");
-
-            painter.applyHysteresis();
-            saveImageAs(painter.getImage(), "6 Hysteresis");
-
-
-            BufferedImage eroded = ImageProcessor.erode(painter.getImage());
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/6eroded.jpg");
-            ImageIO.write(eroded,"jpg",fileOutputStream);
-            fileOutputStream.close();
-
-            eroded = ImageProcessor.erode(eroded);
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/7eroded.jpg");
-            ImageIO.write(eroded,"jpg",fileOutputStream);
-            fileOutputStream.close();
-
-//            ImageIO.write(eroded,"jpg",fileOutputStream);
-
+//            BufferedImage illuminationInvariant1 = new ShadowRemover(img).CalcInvariant(0);
+//            saveImageAs(illuminationInvariant1, "Invariant");
 //
+//            BufferedImage illuminationInvariant2 = new ShadowRemover(img).CalcInvariant(120);
+//            saveImageAs(illuminationInvariant2, "Invariant");
+//
+//            BufferedImage illuminationInvariant3 = new ShadowRemover(img).CalcInvariant(240);
+//            saveImageAs(illuminationInvariant3, "Invariant");
+
+
+            Painter painter = new Painter();
+
+            for (int i =0; i < 30; i+=3){
+                BufferedImage illuminationInvariant = new ShadowRemover(img).CalcInvariant(i);
+                painter.setImage(illuminationInvariant);
+                painter.applyGaussian();
+
+                illuminationInvariant = painter.getImage();
+                saveImageAs(illuminationInvariant, "Invariant");
+
+
+                int min = painter.getMinRed();
+                int max = painter.getMaxRed();
+
+                int threshold = (int) (min+ (max-min)*0.40);
+
+                BufferedImage binary = ImageProcessor.toBinaryWithThreshold(illuminationInvariant,threshold);
+                saveImageAs(binary,"Binary");
+            }
+//            BufferedImage illuminationInvariant = new ShadowRemover(img).CalcInvariant();
+//            saveImageAs(illuminationInvariant, "Invariant");
+//
+//            Painter painter = new Painter(illuminationInvariant);
+//            painter.applyGaussian();
+//            saveImageAs(painter.getImage(), "Blurred");
+//
+//            painter.applySobel();
+//            saveImageAs(painter.getImage(), "Sobel");
+//
+//            painter.applyNonMaxSuppression();
+//            saveImageAs(painter.getImage(), "Suppression");
+//
+//            painter.applyDoubleThreshold();
+//            saveImageAs(painter.getImage(), "Double threshold");
+//
+//            painter.applyHysteresis();
+//            saveImageAs(painter.getImage(), "Hysteresis");
+//
+//            BufferedImage eroded = ImageProcessor.erode(painter.getImage());
+//            saveImageAs(eroded, "Eroded");
+//
+//            eroded = ImageProcessor.erode(eroded);
+//            saveImageAs(eroded, "Eroded");
+//
+//            eroded = ImageProcessor.erode(eroded);
+//            saveImageAs(eroded, "Eroded");
+//
+//            BufferedImage floodfilled = ImageProcessor.floodfill(eroded);
+//            saveImageAs(floodfilled, "Floodfiled");
+//
+//            eroded = ImageProcessor.erode(floodfilled);
+//            saveImageAs(eroded, "Eroded");
 //
 //            BufferedImage dilated = ImageProcessor.dilate(eroded);
+//            saveImageAs(dilated, "Dilated");
+//
 //            dilated = ImageProcessor.dilate(dilated);
-
-//            ImageIO.write(dilated,"jpg",fileOutputStream);
-
-            BufferedImage floodfilled = ImageProcessor.floodfill(eroded);
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/8floodfilled.jpg");
-            ImageIO.write(floodfilled,"jpg",fileOutputStream);
-            fileOutputStream.close();
-
-//            ImageIO.write(floodfilled,"jpg",fileOutputStream);
+//            saveImageAs(dilated, "Dilated");
 //
-            eroded = ImageProcessor.erode(floodfilled);
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/9eroded.jpg");
-            ImageIO.write(eroded,"jpg",fileOutputStream);
-            fileOutputStream.close();
-//            ImageIO.write(eroded,"jpg",fileOutputStream);
+//            dilated = ImageProcessor.dilate(dilated);
+//            saveImageAs(dilated, "Dilated");
 //
-            BufferedImage dilated = ImageProcessor.dilate(eroded);
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/10dilated.jpg");
-            ImageIO.write(dilated,"jpg",fileOutputStream);
-            fileOutputStream.close();
-
-            dilated = ImageProcessor.dilate(dilated);
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/11dilated.jpg");
-            ImageIO.write(dilated,"jpg",fileOutputStream);
-            fileOutputStream.close();
-
-            dilated = ImageProcessor.dilate(dilated);
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/12dilated.jpg");
-            ImageIO.write(dilated,"jpg",fileOutputStream);
-            fileOutputStream.close();
-
-            List<Point> corners = ImageProcessor.sheetDetector(dilated);
-//            BufferedImage image = ImageConverter.IntArray2BufImg(ImageProcessor.getSheetDetector(img), img.getWidth(), img.getHeight());
-
-//            System.out.println(corners);
-//            img = ImageIO.read(fileInputStream);
-
-
-//            for (Point c : corners
-//            ) {
-//                try {
-//                    imgCp.setRGB(c.x, c.y, new Color(0, 255, 0).getRGB());
-//                } catch (Exception ignored) {
-//                }
-//                try {
-//                    imgCp.setRGB(c.x + 1, c.y, new Color(0, 255, 0).getRGB());
-//                } catch (Exception ignored) {
-//                }
-//                try {
-//                    imgCp.setRGB(c.x - 1, c.y, new Color(0, 255, 0).getRGB());
-//                } catch (Exception ignored) {
-//                }
-//                try {
-//                    imgCp.setRGB(c.x, c.y + 1, new Color(0, 255, 0).getRGB());
-//                } catch (Exception ignored) {
-//                }
-//                try {
-//                    imgCp.setRGB(c.x, c.y - 1, new Color(0, 255, 0).getRGB());
-//                } catch (Exception ignored) {
-//                }
-//            }
-
-            int a4Width = 1050;
-            int a4Height = 1485;
-
-            BufferedImage a4 = new BufferedImage(a4Width, a4Height, BufferedImage.TYPE_3BYTE_BGR);
-
-            Triangle textureUpperRight = new Triangle(corners.get(0), corners.get(1), corners.get(2));
-            Triangle textureLowerLeft = new Triangle(corners.get(0), corners.get(3), corners.get(2));
-
-            Triangle targetUpperRight = new Triangle(new Point(0,0), new Point(a4Width-1,0), new Point(a4Width-1,a4Height-1));
-            Triangle targetLowerLeft = new Triangle(new Point(0,0), new Point(0,a4Height-1), new Point(a4Width-1,a4Height-1));
-
-            TriangleTexturer triangleTexturer = new TriangleTexturer(a4, imgCp, textureUpperRight, targetUpperRight );
-            triangleTexturer.texture();
-            triangleTexturer.setFrom(textureLowerLeft);
-            triangleTexturer.setTo(targetLowerLeft);
-            triangleTexturer.texture();
-
-
-            BufferedImage result = triangleTexturer.getCanvas();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/13result.jpg");
-            ImageIO.write(result,"jpg",fileOutputStream);
-            fileOutputStream.close();
-
-
-            ShadowRemover shadowRemover = new ShadowRemover(result);
-            BufferedImage invariant = shadowRemover.CalcInvariant();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/14Invariant.jpg");
-            ImageIO.write(invariant, "jpg", fileOutputStream);
-            fileOutputStream.close();
-
-
-
-
-            painter = new Painter(invariant);
-            painter.applyGaussian(3, 1.5);
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/15Gaussian.jpg");
-            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
-            fileOutputStream.close();
-
-            painter.applySobel();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/16Sobel.jpg");
-            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
-            fileOutputStream.close();
-
-            painter.applyNonMaxSuppression();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/17Supp.jpg");
-            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
-            fileOutputStream.close();
-
-            painter.applyDoubleThreshold();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/18DT.jpg");
-            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
-            fileOutputStream.close();
+//            List<Point> corners = ImageProcessor.sheetDetector(dilated);
+//
+////
+//////            for (Point c : corners
+//////            ) {
+//////                try {
+//////                    imgCp.setRGB(c.x, c.y, new Color(0, 255, 0).getRGB());
+//////                } catch (Exception ignored) {
+//////                }
+//////                try {
+//////                    imgCp.setRGB(c.x + 1, c.y, new Color(0, 255, 0).getRGB());
+//////                } catch (Exception ignored) {
+//////                }
+//////                try {
+//////                    imgCp.setRGB(c.x - 1, c.y, new Color(0, 255, 0).getRGB());
+//////                } catch (Exception ignored) {
+//////                }
+//////                try {
+//////                    imgCp.setRGB(c.x, c.y + 1, new Color(0, 255, 0).getRGB());
+//////                } catch (Exception ignored) {
+//////                }
+//////                try {
+//////                    imgCp.setRGB(c.x, c.y - 1, new Color(0, 255, 0).getRGB());
+//////                } catch (Exception ignored) {
+//////                }
+//////            }
+////
+//            int a4Width = 1050;
+//            int a4Height = 1485;
+//
+//            BufferedImage a4 = new BufferedImage(a4Width, a4Height, BufferedImage.TYPE_3BYTE_BGR);
+//
+//            Triangle textureUpperRight = new Triangle(corners.get(0), corners.get(1), corners.get(2));
+//            Triangle textureLowerLeft = new Triangle(corners.get(0), corners.get(3), corners.get(2));
+//
+//            Triangle targetUpperRight = new Triangle(new Point(0,0), new Point(a4Width-1,0), new Point(a4Width-1,a4Height-1));
+//            Triangle targetLowerLeft = new Triangle(new Point(0,0), new Point(0,a4Height-1), new Point(a4Width-1,a4Height-1));
+//
+//            TriangleTexturer triangleTexturer = new TriangleTexturer(a4, illuminationInvariant, textureUpperRight, targetUpperRight );
+//            triangleTexturer.texture();
+//            triangleTexturer.setFrom(textureLowerLeft);
+//            triangleTexturer.setTo(targetLowerLeft);
+//            triangleTexturer.texture();
+//
+////
+//            BufferedImage result = triangleTexturer.getCanvas();
+//            saveImageAs(result, "Textured");
+////
+////
+////            ShadowRemover shadowRemover = new ShadowRemover(result);
+////            BufferedImage invariant = shadowRemover.CalcInvariant();
+////            fileOutputStream = new FileOutputStream("src/main/resources/Results/14Invariant.jpg");
+////            ImageIO.write(invariant, "jpg", fileOutputStream);
+////            fileOutputStream.close();
+////
+////
+////
+////
+////            painter = new Painter(invariant);
+////            painter.applyGaussian(3, 1.5);
+////            fileOutputStream = new FileOutputStream("src/main/resources/Results/15Gaussian.jpg");
+////            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
+////            fileOutputStream.close();
+////
+////            painter.applySobel();
+////            fileOutputStream = new FileOutputStream("src/main/resources/Results/16Sobel.jpg");
+////            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
+////            fileOutputStream.close();
+////
+////            painter.applyNonMaxSuppression();
+////            fileOutputStream = new FileOutputStream("src/main/resources/Results/17Supp.jpg");
+////            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
+////            fileOutputStream.close();
+////
+////            painter.applyDoubleThreshold();
+////            fileOutputStream = new FileOutputStream("src/main/resources/Results/18DT.jpg");
+////            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
+////            fileOutputStream.close();
+////
+////
+//
 
 
-
-
-
+//            FileOutputStream fileOutputStream
             JPEGImageWriteParam jpegParams = new JPEGImageWriteParam(null);
             jpegParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             jpegParams.setCompressionQuality(1f);
@@ -199,7 +199,7 @@ public class iptApp {
             writer.setOutput(new FileImageOutputStream(
                     new File("src/main/resources/result.jpg")
             ));
-            writer.write(null, new IIOImage(result, null, null), jpegParams);
+//            writer.write(null, new IIOImage(result, null, null), jpegParams);
 
             writer.dispose();
 

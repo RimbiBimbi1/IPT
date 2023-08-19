@@ -1,5 +1,6 @@
 package pl.ipt.ImageProcessor;
 
+import jdk.jfr.Threshold;
 import pl.ipt.DiagonalCornerScanner.DiagonalCornerScanner;
 import pl.ipt.ImageConverter.ImageConverter;
 
@@ -140,127 +141,19 @@ public class ImageProcessor {
         return result;
     }
 
-//    private static Point upperLeftCornerScan(BufferedImage image) {
-//        int width = image.getWidth();
-//        int height = image.getHeight();
-//
-//        int xStart = 0;
-//        int yStart = 0;
-//
-//        int xEnd = width;
-//        int yEnd = height;
-//
-//        int xJump = 1;
-//        int yJump = 1;
-//
-//        int xStep = -1;
-//        int yStep = 1;
-//
-//        int i = xStart;
-//        while (i < xEnd) {
-//            int x = xStart;
-//            int y = yStart;
-//            while (x >= xStart && y < yEnd) {
-//                System.out.println(new Point(x, y));
-//
-//                x += xStep;
-//                y += yStep;
-//
-//            }
-//
-//            xStart += xJump;
-//        }
-//        xStart-=xJump;
-//        yStart+=yJump;
-//        while (yStart < height) {
-//            int x = xStart;
-//            int y = yStart;
-//            while (x >= 0 && y < height) {
-//                System.out.println(new Point(x, y));
-//                image.setRGB(x,y, new Color(0,0,0).getRGB());
-//
-//                x += xStep;
-//                y += yStep;
-//            }
-//
-//
-//            yStart += yJump;
-//        }
-//
-//        return new Point(0, 0);
-//    }
+    public static BufferedImage toBinaryWithThreshold(BufferedImage image, int threshold){
+        int[] pixels = ImageConverter.BufImg2IntArray(image);
+        int white = new Color(255,255,255).getRGB();
 
-//    private static Point diagonalCornerScan(BufferedImage image, int corner) {
-//        DiagonalCornerScanner dcs = new DiagonalCornerScanner(image,corner);
-//
-//
-////
-////
-////        java.util.function.Supplier<Point> xPhase = () -> {
-////            while ((0 <= config.xStart) && (config.xStart < width)) {
-////                int x = config.xStart;
-////                int y = config.yStart;
-////
-////                while ((0 <= x) && (x < width) && (y <= 0) && (y < height)) {
-////
-////                    System.out.println(new Point(x, y));
-////
-////                    x += config.xStep;
-////                    y += config.yStep;
-////                }
-////
-////                config.xStart += config.xJump;
-////            }
-////            config.xStart-= config.xJump;
-////            config.yStart+= config.yJump;
-////            return new Point(-1, -1);
-////        };
-////
-////        java.util.function.Supplier<Point> yPhase = () -> {
-////            while ((0 <= config.yStart) && (config.yStart < width)) {
-////                int x = config.xStart;
-////                int y = config.yStart;
-////
-////                while ((0 <= x) && (x < width) && (y <= 0) && (y < height)) {
-////
-////                    System.out.println(new Point(x, y));
-////
-////                    x += config.xStep;
-////                    y += config.yStep;
-////                }
-////
-////                config.yStart += config.yJump;
-////            }
-////            config.xStart+= config.xJump;
-////            config.yStart-= config.yJump;
-////            return new Point(-1, -1);
-////        };
-//
-//        Point result;
-//        if (corner%2==0){
-//            result = xPhase.get();
-//            if (result.x!=-1){
-//                return result;
-//            }
-//
-//            result = yPhase.get();
-//
-//        }
-//        else {
-//            result = yPhase.get();
-//            if (result.x!=-1){
-//                return result;
-//            }
-//
-//            result = xPhase.get();
-//        }
-//
-//        return result;
-//    }
-
-    public static List<Point> sheetDetector(BufferedImage image) {
-        DiagonalCornerScanner dcs = new DiagonalCornerScanner(image);
-        return dcs.scanForCorners();
+        for(int i = 0; i < pixels.length; i++){
+            int grey = new Color(pixels[i]).getRed();
+            if (grey >= threshold){
+                pixels[i] = white;
+            }
+            else{
+                pixels[i] = 0;
+            }
+        }
+        return  ImageConverter.IntArray2BufImg(pixels, image.getWidth(), image.getHeight());
     }
-
 }
