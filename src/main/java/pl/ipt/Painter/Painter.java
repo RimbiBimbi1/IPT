@@ -19,6 +19,9 @@ public class Painter {
     private Double[][] sobelY;
     private Double[][] sobel;
 
+    private Integer lowThreshold;
+    private Integer highThreshold;
+
 
     /**
      * Methods
@@ -70,12 +73,12 @@ public class Painter {
     }
 
     public void applyGaussian() {
-        applyGaussian(5, 2.4);
+        applyGaussian(3, 1.3);
     }
 
     public void applyGaussian(Integer kernelSize, Double sd) {
         BufferedImage extended = getExtendedImage(kernelSize - 1);
-        BufferedImage imageCopy = extended;
+        BufferedImage imageCopy = getExtendedImage(0, extended);
 
         Integer k = kernelSize >> 1;
 
@@ -229,35 +232,27 @@ public class Painter {
     public void applyDoubleThreshold(double lowThresholdRatio, double highThresholdRatio) {
         Integer maxRGB = getMaxRGB();
 
-        int highThreshold = (int) (maxRGB * highThresholdRatio);
-        int lowThreshold = (int) (highThreshold * lowThresholdRatio);
+        int high = (int) (maxRGB * highThresholdRatio);
+        int low = (int) (high * lowThresholdRatio);
 
-        int high = new Color(highThreshold, highThreshold, highThreshold).getRGB();
-        int low = new Color(lowThreshold, lowThreshold, lowThreshold).getRGB();
+        this.highThreshold = new Color(high, high, high).getRGB();
+        this.lowThreshold = new Color(low, low, low).getRGB();
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 int grey = new Color(image.getRGB(j, i)).getRed();
-                if (grey >= highThreshold) {
+                if (grey >= high) {
                     image.setRGB(j, i, high);
-                } else if (grey < lowThreshold) {
+                } else if (grey < low ) {
                     image.setRGB(j, i, 0);
                 } else {
                     image.setRGB(j, i, low);
                 }
             }
         }
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/Results/5DoubleThreshold0.jpg");
-            ImageIO.write(image, "jpg", fileOutputStream);
-            fileOutputStream.close();
-        } catch (Exception e) {
-        }
-
-        applyHysteresis(low, high);
     }
 
-    public void applyHysteresis(Integer weak, Integer strong){
+    public void applyHysteresis(){
         BufferedImage extended = getExtendedImage(2);
         int white = new Color(255, 255, 255).getRGB();
 
@@ -266,7 +261,7 @@ public class Painter {
             for (int j = 1; j < width + 1; j++) {
                 int grey = extended.getRGB(j,i);
 
-                if (grey>=strong){
+                if (grey>=this.highThreshold){
                     tracked.push(new Point(j,i));
                 }
             }
@@ -274,14 +269,14 @@ public class Painter {
 
         while(!tracked.isEmpty()){
             Point p = tracked.pop();
-            extended.setRGB(p.x,p.y, strong);
+            extended.setRGB(p.x,p.y, this.highThreshold);
             for (int i=-1;i<2;i++){
                 for (int j=-1;j<2;j++){
                     if (i==0 && j==0){
                         continue;
                     }
                     Integer pRGB =  extended.getRGB(p.x+i,p.y+j);
-                    if ( weak <= pRGB && pRGB <strong){
+                    if ( this.lowThreshold <= pRGB && pRGB <this.highThreshold){
                         tracked.push(new Point(p.x+i,p.y+j));
                     }
                 }
@@ -290,7 +285,7 @@ public class Painter {
 
         for (int i = 1; i < height + 1; i++) {
             for (int j = 1; j < width + 1; j++) {
-                if (extended.getRGB(j, i) == strong) {
+                if (extended.getRGB(j, i) == this.highThreshold) {
                     extended.setRGB(j, i, white);
                 }
                 else extended.setRGB(j, i, 0);
@@ -299,56 +294,6 @@ public class Painter {
 
         setImage(extended.getSubimage(1, 1, width, height));
     }
-
-    public void apply1Hysteresis(Integer weak, Integer strong, int iterations) {
-        BufferedImage extended = getExtendedImage(2);
-
-        int white = new Color(255, 255, 255).getRGB();
-
-
-        for (int k = 0; k < iterations; k++) {
-            for (int i = 1; i < height + 1; i++) {
-                for (int j = 1; j < width + 1; j++) {
-//                    int grey = new Color(extended.getRGB(j, i)).getRed();
-                    int grey = extended.getRGB(j,i);
-                    if ( grey <= weak
-//                            && grey < strong
-                    ) {
-                        if (
-                                new Color(extended.getRGB(j - 1, i - 1)).getRed() == strong ||
-                                        new Color(extended.getRGB(j, i - 1)).getRed() == strong ||
-                                        new Color(extended.getRGB(j + 1, i - 1)).getRed() == strong ||
-                                        new Color(extended.getRGB(j - 1, i)).getRed() == strong ||
-                                        new Color(extended.getRGB(j + 1, i)).getRed() == strong ||
-                                        new Color(extended.getRGB(j - 1, i + 1)).getRed() == strong ||
-                                        new Color(extended.getRGB(j, i + 1)).getRed() == strong ||
-                                        new Color(extended.getRGB(j + 1, i + 1)).getRed() == strong
-                        ) {
-                            extended.setRGB(j, i, strong);
-                        }
-//                    else extended.setRGB(j, i, 0);
-                    }
-                }
-            }
-            try {
-                FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/Results/5Histeresis" + k + ".jpg");
-                ImageIO.write(extended, "jpg", fileOutputStream);
-                fileOutputStream.close();
-            } catch (Exception e) {
-            }
-        }
-
-        for (int i = 1; i < height + 1; i++) {
-            for (int j = 1; j < width + 1; j++) {
-                if (extended.getRGB(j, i) == weak) {
-                    extended.setRGB(j, i, 0);
-                }
-            }
-        }
-
-        setImage(extended.getSubimage(1, 1, width, height));
-    }
-
 
     public void applyHarris() {
         applyHarris(7, 2.5);
@@ -378,12 +323,10 @@ public class Painter {
                             checkY = sobelY[j - k + g][i - k + g];
                         } catch (Exception ignored) {
                         }
-
                         tensor[0][0] += kernel[g][h] * checkX * checkX;
                         tensor[0][1] += kernel[g][h] * checkX * checkY;
                         tensor[1][0] += kernel[g][h] * checkX * checkY;
                         tensor[1][1] += kernel[g][h] * checkY * checkY;
-
                     }
                 }
 

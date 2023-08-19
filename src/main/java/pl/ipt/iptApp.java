@@ -19,53 +19,41 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.List;
 
+import static pl.ipt.ImageSaver.saveImageAs;
+
 
 public class iptApp {
     public static void main(String[] args) {
 
         try {
-            FileInputStream fileInputStream = new FileInputStream("src/main/resources/1.jpg");
+            FileInputStream fileInputStream = new FileInputStream("src/main/resources/8.jpg");
 //            FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/result.jpg");
 
 
             BufferedImage img = ImageIO.read(fileInputStream);
             BufferedImage imgCp = Painter.getExtendedImage(0, img);
 
-            FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/Results/0input.jpg");
-            ImageIO.write(img,"jpg",fileOutputStream);
-            fileOutputStream.close();
+            saveImageAs(img, "0 Input");
 
-            Painter painter = new Painter(img);
+            BufferedImage illuminationInvariant = ShadowRemover.CalcInvariant(img);
+            saveImageAs(illuminationInvariant, "1 Invariant");
 
-            painter.toGrayScale();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/1grayscale.jpg");
-            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
-            fileOutputStream.close();
-
+            Painter painter = new Painter(illuminationInvariant);
             painter.applyGaussian();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/2gaussian.jpg");
-            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
-            fileOutputStream.close();
+            saveImageAs(painter.getImage(), "2 Blurred");
 
             painter.applySobel();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/3sobel.jpg");
-            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
-            fileOutputStream.close();
+            saveImageAs(painter.getImage(), "3 Sobel");
 
             painter.applyNonMaxSuppression();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/4nonmax.jpg");
-            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
-            fileOutputStream.close();
+            saveImageAs(painter.getImage(), "4 Suppression");
 
             painter.applyDoubleThreshold();
-            fileOutputStream = new FileOutputStream("src/main/resources/Results/5postHisteresis.jpg");
-            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
-            fileOutputStream.close();
+            saveImageAs(painter.getImage(), "5 Double threshold");
 
-//            ImageIO.write(painter.getImage(),"jpg",fileOutputStream);
+            painter.applyHysteresis();
+            saveImageAs(painter.getImage(), "6 Hysteresis");
 
-
-//            painter.applyHarris();
 
             BufferedImage eroded = ImageProcessor.erode(painter.getImage());
             fileOutputStream = new FileOutputStream("src/main/resources/Results/6eroded.jpg");
@@ -175,11 +163,33 @@ public class iptApp {
             ImageIO.write(invariant, "jpg", fileOutputStream);
             fileOutputStream.close();
 
+
+
+
             painter = new Painter(invariant);
-            painter.applyGaussian();
+            painter.applyGaussian(3, 1.5);
             fileOutputStream = new FileOutputStream("src/main/resources/Results/15Gaussian.jpg");
             ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
             fileOutputStream.close();
+
+            painter.applySobel();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/16Sobel.jpg");
+            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
+            fileOutputStream.close();
+
+            painter.applyNonMaxSuppression();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/17Supp.jpg");
+            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
+            fileOutputStream.close();
+
+            painter.applyDoubleThreshold();
+            fileOutputStream = new FileOutputStream("src/main/resources/Results/18DT.jpg");
+            ImageIO.write(painter.getImage(), "jpg", fileOutputStream);
+            fileOutputStream.close();
+
+
+
+
 
             JPEGImageWriteParam jpegParams = new JPEGImageWriteParam(null);
             jpegParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
