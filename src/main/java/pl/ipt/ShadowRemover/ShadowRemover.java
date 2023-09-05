@@ -4,6 +4,10 @@ import pl.ipt.ImageConverter.ImageConverter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
+import java.util.List;
 
 import static pl.ipt.ImageConverter.ImageConverter.IntArray2BufImg;
 
@@ -131,64 +135,117 @@ public class ShadowRemover {
 //        return CalcInvariant(0);
 //    }
 
-    public BufferedImage CalcInvariant(int angle){
+
+
+    public BufferedImage CalcInvariant() {
         int l = pixels.length;
         double[] X = new double[l];
         double[] Y = new double[l];
-        double [] invariant = new double[l];
-        int [] result = new int[l];
+        double[] Xs = new double[l];
+        double[] Ys = new double[l];
+        double[] XYs = new double[l];
+        double[] invariant = new double[l];
+        int[] result = new int[l];
 
 
-        double meanX = 0.0;
-        double meanY = 0.0;
+        BigDecimal meanX = BigDecimal.ZERO;
+        BigDecimal meanY = BigDecimal.ZERO;
+        BigDecimal covXY = BigDecimal.ZERO;
+        BigDecimal sumXAbs = BigDecimal.ZERO;
+        BigDecimal sumYAbs = BigDecimal.ZERO;
 
-        for (int i = 0; i < l; i++){
+        for (int i = 0; i < l; i++) {
             Color c = new Color(pixels[i]);
-            double r = Math.max(c.getRed(),1.0)/255.0;
-            double g = Math.max(c.getGreen(),1.0)/255.0;
-            double b = Math.max(c.getBlue(),1.0)/255.0;
+//            double r = Math.max(c.getRed(), 1.0) / 255.0;
+//            double g = Math.max(c.getGreen(), 1.0) / 255.0;
+//            double b = Math.max(c.getBlue(), 1.0) / 255.0;
+            double r = Math.max(c.getRed(), 1.0);
+            double g = Math.max(c.getGreen(), 1.0);
+            double b = Math.max(c.getBlue(), 1.0);
 
-            double geoMean = Math.pow(r*g*b, 1.0/3);
+            double geoMean = Math.pow(r * g * b, 1.0/3.0);
+//            double geoMean = (r+g+b)/3.0;
 
             X[i] = Math.log(r/geoMean);
-            Y[i] = Math.log(b/geoMean);
+            Y[i] = Math.log(g/geoMean);
 
-            meanX += X[i];
-            meanY += Y[i];
+            meanX = meanX.add(BigDecimal.valueOf(X[i]));
+            meanY = meanY.add(BigDecimal.valueOf(Y[i]));
         }
 
-        meanX /= l;
-        meanY /= l;
+        meanX = meanX.divide(BigDecimal.valueOf(l), RoundingMode.HALF_UP);
+        meanY = meanY.divide(BigDecimal.valueOf(l), RoundingMode.HALF_UP);
 
         for (int i = 0; i < l; i++) {
-            X[i] -= meanX;
-            Y[i] -= meanY;
+            Xs[i] = X[i] - meanX.doubleValue();
+            Ys[i] = X[i] - meanY.doubleValue();
+            XYs[i] = Xs[i] * Ys[i];
+            covXY = covXY.add(BigDecimal.valueOf(XYs[i]));
+            sumXAbs = sumXAbs.add(BigDecimal.valueOf(Math.abs(Xs[i])));
+            sumYAbs = sumYAbs.add(BigDecimal.valueOf(Math.abs(Ys[i])));
         }
 
-        double maxI = 0.0;
+        double alpha = Math.atan(1 / Math.signum(covXY.doubleValue())) * sumXAbs.divide(sumYAbs, RoundingMode.HALF_UP).doubleValue();
+
+        double maxI = Double.MIN_VALUE;
         double minI = Double.MAX_VALUE;
 
+//        double alpha = angle * Math.PI / 180;
+//        double alpha = 0.1;
 
-        double alpha = angle * Math.PI / 180;
-        double cos = Math.cos(alpha);
         double sin = Math.sin(alpha);
+        double cos = Math.cos(alpha);
 
         for (int i = 0; i < l; i++) {
-            invariant[i] = (X[i]*cos + Y[i]*sin);
-            if (maxI < invariant[i]){
+            invariant[i] = (X[i] * cos + Y[i] * sin);
+
+            if (maxI < invariant[i]) {
                 maxI = invariant[i];
             }
-            if(minI > invariant[i]){
+            if (minI > invariant[i]) {
                 minI = invariant[i];
             }
         }
 
+        minI *= 1.025;
+        maxI *= 0.975;
+
         for (int i = 0; i < l; i++) {
-            int gray = (int) ((invariant[i]-minI)/(maxI-minI)*255);
-            result[i] = new Color (gray,gray,gray).getRGB();
+            if (invariant[i] > maxI) {
+                invariant[i] = maxI;
+            } else if (invariant[i] < minI) {
+                invariant[i] = minI;
+            }
+
+            int gray = (int) ((invariant[i] - minI) / (maxI - minI) * 255);
+//            System.out.println(gray);
+            result[i] = new Color(gray, gray, gray).getRGB();
         }
 
-        return ImageConverter.IntArray2BufImg(result,width,height);
+        return ImageConverter.IntArray2BufImg(result, width, height);
+    }
+
+ public BufferedImage CalcInvariant1(int angle) {
+        int l = pixels.length;
+//        double[] invariant = new double[l];
+        int[] result = new int[l];
+
+        for (int i = 0; i < l; i++) {
+            Color c = new Color(pixels[i]);
+            double r = Math.max(c.getRed(), 1.0) / 255.0;
+            double g = Math.max(c.getGreen(), 1.0) / 255.0;
+            double b = Math.max(c.getBlue(), 1.0) / 255.0;
+
+            double sum = r+g+b;
+
+            r = Math.floor((r / sum)*255 );
+            g = Math.floor((g / sum)*255 );
+            b = Math.floor((b / sum)*255 );
+
+            result[i] = new Color((int) r, (int) g, (int) b).getRGB();
+        }
+
+        return ImageConverter.IntArray2BufImg(result, width, height);
     }
 
 
@@ -244,7 +301,7 @@ public class ShadowRemover {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++, k++) {
                 int refl = calcPixelReflectance(j, i);
-                reflPixels[k] = new Color(refl,refl,refl).getRGB();
+                reflPixels[k] = new Color(refl, refl, refl).getRGB();
             }
         }
 
@@ -260,4 +317,45 @@ public class ShadowRemover {
         return red + green + blue;
     }
 
+    public static double getShannonEntropy_Image(BufferedImage actualImage) {
+        int[] pixels = ImageConverter.BufImg2IntArray(actualImage);
+        pixels = ImageConverter.IntArray2Greyscale(pixels);
+
+        List<Integer> values = new ArrayList<>();
+        int n = 0;
+        Map<Integer, Integer> occ = new HashMap<>();
+        for (int i = 0; i<pixels.length; i++){
+            if (!values.contains(pixels[i])){
+                values.add(pixels[i]);
+            }
+            if (occ.containsKey(pixels[i])){
+                occ.put(pixels[i], occ.get(pixels[i]) + 1);
+            } else {
+                occ.put(pixels[i],1);
+            }
+            n++;
+        }
+        double e = 0.0;
+        for (Map.Entry<Integer, Integer> entry : occ.entrySet()) {
+            int cx = entry.getKey();
+            double p = (double) entry.getValue() / n;
+            e += p * Math.log(p)/Math.log(2);
+        }
+        return -e;
+    }
+
+
+    public static int countGreyColors (BufferedImage image){
+        int[] pixels = ImageConverter.BufImg2IntArray(image);
+        pixels = ImageConverter.IntArray2Greyscale(pixels);
+
+        int[] colors = new int[256];
+
+        Arrays.stream(pixels).forEach(pixel -> colors[pixel] = 1);
+
+        return Arrays.stream(colors).reduce(0, Integer::sum);
+    }
+
 }
+
+

@@ -89,7 +89,7 @@ public class Painter {
     }
 
     public void applyGaussian() {
-        applyGaussian(3, 1.3);
+        applyGaussian(5, 3.0);
     }
 
     public void applyGaussian(Integer kernelSize, Double sd) {
@@ -109,8 +109,6 @@ public class Painter {
 
                         Color c = new Color(imageCopy.getRGB(j - k + g, i - k + h));
                         gray += kernel[h][g] * c.getRed();
-
-
                     }
                 }
                 extended.setRGB(j, i, new Color((int) gray, (int) gray, (int) gray).getRGB());

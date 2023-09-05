@@ -156,4 +156,50 @@ public class ImageProcessor {
         }
         return  ImageConverter.IntArray2BufImg(pixels, image.getWidth(), image.getHeight());
     }
+
+
+    public static BufferedImage toTernaryWithThresholds(BufferedImage image, int lowThreshold, int highThreshold){
+        int[] pixels = ImageConverter.BufImg2IntArray(image);
+        int white = new Color(255,255,255).getRGB();
+        int grey = new Color(127,127,127).getRGB();
+
+        for(int i = 0; i < pixels.length; i++){
+            int pixelColor = new Color(pixels[i]).getRed();
+            if (pixelColor >= highThreshold){
+                pixels[i] = white;
+            }
+            else if (pixelColor >= lowThreshold){
+                pixels[i] = grey;
+            }
+            else {
+                pixels[i] = 0;
+            }
+        }
+        return  ImageConverter.IntArray2BufImg(pixels, image.getWidth(), image.getHeight());
+    }
+
+    public static BufferedImage greyscaleAverage(BufferedImage image1, BufferedImage image2){
+        int[] pixels1 = ImageConverter.BufImg2IntArray(image1);
+        int[] pixels2 = ImageConverter.BufImg2IntArray(image2);
+        int l1 = pixels1.length;
+        int l2 = pixels2.length;
+
+        if (l1 != l2){
+            throw new RuntimeException("Images have different sizes");
+        }
+
+        int[] result = new int[l1];
+
+
+        for(int i = 0; i < l1; i++){
+            int red1 = new Color(pixels1[i]).getRed();
+            int red2 = new Color(pixels2[i]).getRed();
+
+            int avg = Math.min((red1 + red2) / 2, 255);
+
+            result[i] = new Color(avg, avg, avg).getRGB();
+
+        }
+        return  ImageConverter.IntArray2BufImg(result, image1.getWidth(), image1.getHeight());
+    }
 }

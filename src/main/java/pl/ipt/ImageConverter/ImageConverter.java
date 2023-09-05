@@ -1,5 +1,6 @@
 package pl.ipt.ImageConverter;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.Arrays;
@@ -37,6 +38,10 @@ public class ImageConverter {
 //        raster.setPixels(0, 0, width, height, pixels);
         result.setRGB(0,0,width,height,pixels,0,width);
         return result;
+    }
+
+    public static int[] IntArray2Greyscale(int[] pixels){
+        return Arrays.stream(pixels).map(p -> new Color(p).getRed()).toArray();
     }
 
 }

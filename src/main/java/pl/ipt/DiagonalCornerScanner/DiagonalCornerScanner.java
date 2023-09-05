@@ -38,8 +38,8 @@ public class DiagonalCornerScanner {
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.pixels = ImageConverter.BufImg2IntArray(image);
-        this.pixelNeighbours = new int[image.getHeight() * image.getWidth()];
-        this.pixelGravityCenterDistance = new double[image.getHeight() * image.getWidth()];
+//        this.pixelNeighbours = new int[image.getHeight() * image.getWidth()];
+//        this.pixelGravityCenterDistance = new double[image.getHeight() * image.getWidth()];
     }
 
     private void calcPixelNeighboursCount(int kRadius) {
