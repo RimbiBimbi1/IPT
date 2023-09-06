@@ -21,6 +21,7 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.Buffer;
 import java.security.KeyPair;
 import java.util.*;
 import java.util.List;
@@ -34,7 +35,7 @@ public class iptApp {
     public static void main(String[] args) {
 
         try {
-            FileInputStream fileInputStream = new FileInputStream("src/main/resources/result.jpg");
+            FileInputStream fileInputStream = new FileInputStream("src/main/resources/textured/2.jpg");
 //            FileOutputStream fileOutputStream = new FileOutputStream("src/main/resources/result.jpg");
 
 
@@ -47,7 +48,7 @@ public class iptApp {
 //            painter.applyGaussian();
 //
 //            painter.applySobel();
-//            saveImageAs(painter.getImage(), "presheet");
+//            saveImageAs(painter.getImage(), "sobel");
 //
 //
 //            painter.applyNonMaxSuppression();
@@ -56,13 +57,22 @@ public class iptApp {
 //
 //
 //            img = painter.getImage();
+//            saveImageAs(img, "hysteresis");
 //
 //
 //            img = ImageProcessor.erode(img);
 //            img = ImageProcessor.erode(img);
+//            saveImageAs(img, "erosion");
+//
 //            img = ImageProcessor.floodfill(img);
+//            saveImageAs(img, "floodfil");
+//
 //            img = ImageProcessor.dilate(img);
 //            img = ImageProcessor.dilate(img);
+//
+//            saveImageAs(img, "dilate");
+//
+//
 //
 //
 //
@@ -120,14 +130,36 @@ public class iptApp {
 
             Painter painter = new Painter(illuminationInvariant);
 
-            BufferedImage binary = ImageProcessor.toBinaryWithThreshold(painter.getImage(), avg);
-            saveImageAs(binary,"Binary");
+//            BufferedImage ternary = ImageProcessor.toTernaryWithThresholds(painter.getImage(), (int) (avg*0.90), avg);
+//            saveImageAs(ternary, "ternary");
+
+//            BufferedImage binary = ImageProcessor.toBinaryWithThreshold(painter.getImage(), avg);
+//            saveImageAs(binary,"Binary");
 
             painter.applyGaussian();
             saveImageAs(painter.getImage(), "Gaussian");
 
             painter.applySobel();
             saveImageAs(painter.getImage(), "Sobel");
+
+            painter.applyNonMaxSuppression();
+            saveImageAs(painter.getImage(), "Suppression");
+
+            painter.applyDoubleThreshold();
+            saveImageAs(painter.getImage(), "Threshold");
+
+
+            painter.applyHysteresis(3);
+            saveImageAs(painter.getImage(), "Hysteresis");
+
+            BufferedImage eroded = ImageProcessor.erode(painter.getImage());
+            saveImageAs(eroded, "eroded");
+
+            eroded = ImageProcessor.erode(eroded);
+            saveImageAs(eroded, "eroded");
+
+            eroded = ImageProcessor.floodfill(eroded);
+             saveImageAs(eroded, "floodfilled");
 
 
 

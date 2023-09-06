@@ -94,8 +94,8 @@ public class ShadowRemover {
             double b = Math.max(c.getBlue(), 1.0);
 
             double geoMean = Math.pow(r * g * b, 1.0/3.0);
-            X[i] = Math.log(r/geoMean);
-            Y[i] = Math.log(g/geoMean);
+            X[i] = Math.log(r/b);
+            Y[i] = Math.log(g/b);
 
             meanX = meanX.add(BigDecimal.valueOf(X[i]));
             meanY = meanY.add(BigDecimal.valueOf(Y[i]));

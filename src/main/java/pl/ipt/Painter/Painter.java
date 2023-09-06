@@ -89,7 +89,7 @@ public class Painter {
     }
 
     public void applyGaussian() {
-        applyGaussian(5, 3.0);
+        applyGaussian(3, 1.4);
     }
 
     public void applyGaussian(Integer kernelSize, Double sd) {
@@ -267,13 +267,17 @@ public class Painter {
     }
 
     public void applyHysteresis(){
-        BufferedImage extended = getExtendedImage(2);
+        applyHysteresis(1);
+    }
+
+    public void applyHysteresis(int radius){
+        BufferedImage extended = getExtendedImage(radius*2);
         int white = new Color(255, 255, 255).getRGB();
         int highRGB = new Color(highThreshold,highThreshold,highThreshold).getRGB();
 
         Stack<Point> tracked = new Stack<>();
-        for (int i = 1; i < height + 1; i++) {
-            for (int j = 1; j < width + 1; j++) {
+        for (int i = radius; i < height + radius; i++) {
+            for (int j = radius; j < width + radius; j++) {
                 int grey = new Color(extended.getRGB(j,i)).getRed();
 
                 if (grey>=this.highThreshold){
@@ -285,8 +289,8 @@ public class Painter {
         while(!tracked.isEmpty()){
             Point p = tracked.pop();
             extended.setRGB(p.x,p.y, highRGB);
-            for (int i=-1;i<2;i++){
-                for (int j=-1;j<2;j++){
+            for (int i=-radius;i<=radius;i++){
+                for (int j=-radius;j<=radius;j++){
                     if (i==0 && j==0){
                         continue;
                     }
@@ -298,8 +302,8 @@ public class Painter {
             }
         }
 
-        for (int i = 1; i < height + 1; i++) {
-            for (int j = 1; j < width + 1; j++) {
+        for (int i = radius; i < height + radius; i++) {
+            for (int j = radius; j < width + radius; j++) {
                 if (new Color(extended.getRGB(j, i)).getRed() == this.highThreshold) {
                     extended.setRGB(j, i, white);
                 }
@@ -307,7 +311,7 @@ public class Painter {
             }
         }
 
-        setImage(extended.getSubimage(1, 1, width, height));
+        setImage(extended.getSubimage(radius, radius, width, height));
     }
 
     public void applyHarris() {
